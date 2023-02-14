@@ -36,10 +36,16 @@ class _NotePageState extends State<NotePage> {
         return Future.value(true);
       }),
       child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.green[600],
+          centerTitle: true,
+          title: Text('Notes'),
+        ),
         body: SafeArea(
             child: Container(
           child: TextField(
             decoration: InputDecoration(
+              contentPadding: EdgeInsets.all(15),
                 hintText: "Note here...",
                 hintStyle: TextStyle(color: Colors.black26),
                 border: InputBorder.none),

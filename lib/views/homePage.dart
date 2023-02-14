@@ -159,8 +159,10 @@ class _HomePageState extends State<HomePage> {
                       margin: EdgeInsets.all(5),
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: Colors.black,
-                          width: 1,
+                          color: selected_Index.contains(index)?
+                          Colors.green : Colors.black,
+                          width: selected_Index.contains(index)?
+                          3 : 1,
                         ),
                         borderRadius: BorderRadius.circular(10),
                       ),
