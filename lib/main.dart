@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:to_do_app/views/homePage.dart';
 
-void main() {
+Future<void> main() async {
+  await Hive.initFlutter();
+  await Hive.openBox("Notes");
   runApp(const MyApp());
 }
 
@@ -21,4 +24,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

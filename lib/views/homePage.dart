@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:hive/hive.dart';
 import 'package:to_do_app/views/notepage.dart';
 
 class HomePage extends StatefulWidget {
@@ -14,9 +15,32 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late final Box box;
+
   Set<int> selected_Index = new Set();
   bool is_selected = false;
   List content = [];
+
+  @override
+  void initState() {
+    super.initState();
+    box = Hive.box("Notes");
+
+    box.isEmpty ? print("none") : _getNotes();
+  }
+
+  void _getNotes() {
+    setState(() {
+      content.addAll(box.get("Notes"));
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    Hive.close();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -129,40 +153,42 @@ class _HomePageState extends State<HomePage> {
                           },
                           onTap: () {
                             is_selected && selected_Index.isNotEmpty
-                            ? setState(() {
-                                is_selected = true;
-                                selected_Index.contains(index)
-                                  ? selected_Index.remove(index)
-                                  : selected_Index.add(index);
-                            }) : 
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => NotePage(
-                                        content: content[index],
-                                        onChildChanged: (String data) {
+                                ? setState(() {
+                                    is_selected = true;
+                                    selected_Index.contains(index)
+                                        ? selected_Index.remove(index)
+                                        : selected_Index.add(index);
+                                  })
+                                : Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => NotePage(
+                                            content: content[index],
+                                            onChildChanged: (String data) {
+                                              setState(() {
+                                                content[index] = data;
+                                              });
+                                            }))).then((value) => {
+                                      if (value == true)
+                                        {
+                                          print("Works"),
                                           setState(() {
-                                            content[index] = data;
-                                          });
-                                        }))).then((value) => {
-                                  if (value == true)
-                                    {
-                                      print(index),
-                                      setState(() {
-                                        content.removeAt(index);
-                                      })
-                                    }
-                                });
+                                            content.removeAt(index);
+                                          }),
+                                          box.put("Notes", content),
+                                          print(box.values)
+                                        }
+                                    });
                           },
                           child: Text("${content[index]}")),
                       padding: EdgeInsets.all(12),
                       margin: EdgeInsets.all(5),
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: selected_Index.contains(index)?
-                          Colors.green : Colors.black,
-                          width: selected_Index.contains(index)?
-                          3 : 1,
+                          color: selected_Index.contains(index)
+                              ? Colors.green
+                              : Colors.black,
+                          width: selected_Index.contains(index) ? 3 : 1,
                         ),
                         borderRadius: BorderRadius.circular(10),
                       ),

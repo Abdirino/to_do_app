@@ -27,14 +27,14 @@ class _NotePageState extends State<NotePage> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: (() {
+      onWillPop: () {
         if (_controller.text.trim().isEmpty) {
           Navigator.pop(context, true);
         }
         _controller.text.trim();
 
         return Future.value(true);
-      }),
+      },
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.green[600],
