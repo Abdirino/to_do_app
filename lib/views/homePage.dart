@@ -24,14 +24,14 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    box = Hive.box("Notes");
+    box = Hive.box("notes");
 
     box.isEmpty ? print("none") : _getNotes();
   }
 
   void _getNotes() {
     setState(() {
-      content.addAll(box.get("Notes"));
+      content.addAll(box.get("notes"));
     });
   }
 
@@ -86,6 +86,7 @@ class _HomePageState extends State<HomePage> {
                         setState(() {
                           selected_Index.clear();
                         });
+                        box.put("notes", content);
                       })
                 ]
               : [],
@@ -116,12 +117,15 @@ class _HomePageState extends State<HomePage> {
                           setState(() {
                             content[index] = data;
                           });
+                          box.put("notes", content);
                         }))).then((value) => {
                   if (value == true)
                     {
                       setState(() {
                         content.removeLast();
-                      })
+                      }),
+                      box.put("notes", content),
+                      print(box.values)
                     }
                 });
           },
@@ -175,7 +179,7 @@ class _HomePageState extends State<HomePage> {
                                           setState(() {
                                             content.removeAt(index);
                                           }),
-                                          box.put("Notes", content),
+                                          box.put("notes", content),
                                           print(box.values)
                                         }
                                     });
