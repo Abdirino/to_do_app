@@ -40,22 +40,37 @@ class _NotePageState extends State<NotePage> {
           backgroundColor: Colors.green[600],
           centerTitle: true,
           title: Text('Notes'),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  FocusScopeNode currentFocus = FocusScope.of(context);
+
+                  if (!currentFocus.hasPrimaryFocus) {
+                    currentFocus.unfocus();
+                  }
+                },
+                icon: Icon(Icons.check))
+          ],
         ),
         body: SafeArea(
             child: Container(
-          child: TextField(
-            decoration: InputDecoration(
-              contentPadding: EdgeInsets.all(15),
-                hintText: "Note here...",
-                hintStyle: TextStyle(color: Colors.black26),
-                border: InputBorder.none),
-            controller: _controller,
-            maxLines: null,
-            keyboardType: TextInputType.multiline,
-            autofocus: true,
-            onChanged: ((value) {
-              widget.onChildChanged(value.trim());
-            }),
+          child: Hero(
+            tag: "Hero",
+            child: Material(
+              child: TextField(
+                decoration: InputDecoration(
+                    contentPadding: EdgeInsets.all(15),
+                    hintText: "Note here...",
+                    hintStyle: TextStyle(color: Colors.black26),
+                    border: InputBorder.none),
+                controller: _controller,
+                maxLines: null,
+                keyboardType: TextInputType.multiline,
+                onChanged: ((value) {
+                  widget.onChildChanged(value.trim());
+                }),
+              ),
+            ),
           ),
         )),
       ),

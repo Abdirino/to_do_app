@@ -184,18 +184,29 @@ class _HomePageState extends State<HomePage> {
                                         }
                                     });
                           },
-                          child: Text("${content[index]}")),
-                      padding: EdgeInsets.all(12),
-                      margin: EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: selected_Index.contains(index)
-                              ? Colors.green
-                              : Colors.black,
-                          width: selected_Index.contains(index) ? 3 : 1,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                          child: Container(
+                            child: Hero(
+                              tag: "Hero",
+                              child: Material(child: Text("${content[index]}",
+                              style: TextStyle(
+                                fontSize: 16,
+                                wordSpacing: 1,
+                              ),
+                              ))),
+                            padding: EdgeInsets.all(15),
+                            margin: EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: content[index].trim().isEmpty
+                                    ? Colors.transparent
+                                    : selected_Index.contains(index)
+                                        ? Colors.green
+                                        : Color.fromARGB(153, 0, 0, 0),
+                                width: selected_Index.contains(index) ? 3 : 1,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          )),
                     ),
                     staggeredTileBuilder: (index) {
                       return StaggeredTile.fit(1);
