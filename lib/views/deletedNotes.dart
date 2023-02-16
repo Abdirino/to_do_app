@@ -5,76 +5,42 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:hive/hive.dart';
-import 'package:to_do_app/views/deletedNotes.dart';
 import 'package:to_do_app/views/notepage.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class deletedNotes extends StatefulWidget {
+  const deletedNotes({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<deletedNotes> createState() => _deletedNotesState();
 }
 
-class _HomePageState extends State<HomePage> {
-  late final Box box;
-  late final Box del_box;
+class _deletedNotesState extends State<deletedNotes> {
+  late final Box deleted_box;
+  late final Box Restored_box;
 
   Set<int> selected_Index = new Set();
   bool is_selected = false;
   List content = [];
-  List deleted_content = [];
+  List Restored_content = [];
 
   @override
   void initState() {
     super.initState();
-    box = Hive.box("notes");
-    del_box = Hive.box("deleted_notes");
+    deleted_box = Hive.box("deleted_notes");
+    Restored_box = Hive.box("notes");
 
-    box.isEmpty ? print("none") : _getNotes();
+    deleted_box.isEmpty ? print("none") : _getNotes();
   }
 
   void _getNotes() {
     setState(() {
-      content.addAll(box.get("notes"));
+      content.addAll(deleted_box.get("deleted_notes"));
     });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    Hive.close();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        drawer: Drawer(
-            backgroundColor: Colors.green[200],
-            child: SafeArea(
-              child: Column(children: [
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) {
-                      return deletedNotes();
-                    })).then((value) => _getNotes());
-                  },
-                  child: Container(
-                    color: Colors.grey,
-                    padding: EdgeInsets.fromLTRB(10, 25, 10, 10),
-                    child: Row(
-                      children: [
-                        Icon(Icons.delete),
-                        Text(
-                          "Deleted Notes",
-                          style: TextStyle(),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              ]),
-            )),
         appBar: AppBar(
           leading: is_selected && selected_Index.isNotEmpty
               ? Row(
@@ -97,19 +63,7 @@ class _HomePageState extends State<HomePage> {
                     ))
                   ],
                 )
-              : Row(
-                  children: [
-                    Builder(builder: (context) {
-                      return IconButton(
-                          icon: Icon(
-                            Icons.menu,
-                            color: Colors.black,
-                            size: 25,
-                          ),
-                          onPressed: () => {Scaffold.of(context).openDrawer()});
-                    })
-                  ],
-                ),
+              : null,
           actions: is_selected && selected_Index.isNotEmpty
               ? [
                   IconButton(
@@ -123,63 +77,50 @@ class _HomePageState extends State<HomePage> {
                           setState(() {
                             is_selected = false;
 
-                            deleted_content.add(content[index]);
                             content.removeAt(index);
                           });
                         }
                         setState(() {
                           selected_Index.clear();
                         });
-                        del_box.put("deleted_notes", deleted_content);
-                        box.put("notes", content);
-                      })
+                        deleted_box.put("deleted_notes", content);
+                      }),
+                  IconButton(
+                      icon: Icon(Icons.restore),
+                      onPressed: () {
+                        List toBeRestored = [];
+                        toBeRestored.addAll(selected_Index);
+                        toBeRestored.sort();
+                        toBeRestored = toBeRestored.reversed.toList();
+                        for (var index in toBeRestored) {
+                          setState(() {
+                            is_selected = false;
+                            Restored_content.add(content[index]);
+                            content.removeAt(index);
+                          });
+                        }
+                        setState(() {
+                          selected_Index.clear();
+                        });
+                        deleted_box.put("deleted_notes", content);
+                        Restored_box.put("notes", Restored_content);
+                      }),
                 ]
               : [],
           backgroundColor: Color.fromARGB(255, 137, 246, 49),
           centerTitle: true,
           title: Text(
-            "ToDo Zen",
+            "Deleted Notes",
             style: TextStyle(
               color: Colors.black,
             ),
           ),
         ),
-        //
-        floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.lime,
-          child: Icon(Icons.add),
-          onPressed: () {
-            int index = content.length;
-            setState(() {
-              content.add("");
-            });
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => NotePage(
-                        content: content[index],
-                        onChildChanged: (String data) {
-                          setState(() {
-                            content[index] = data;
-                          });
-                          box.put("notes", content);
-                        }))).then((value) => {
-                  if (value == true)
-                    {
-                      setState(() {
-                        content.removeLast();
-                      }),
-                      box.put("notes", content),
-                      print(box.values)
-                    }
-                });
-          },
-        ),
         body: SafeArea(
             child: content.isEmpty
                 ? Center(
                     child: Text(
-                      "No content \n Add notes to display",
+                      "No Deleted Notes \n Delete notes to display",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           fontSize: 20, color: Color.fromARGB(255, 0, 0, 0)),
@@ -208,26 +149,7 @@ class _HomePageState extends State<HomePage> {
                                         ? selected_Index.remove(index)
                                         : selected_Index.add(index);
                                   })
-                                : Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => NotePage(
-                                            content: content[index],
-                                            onChildChanged: (String data) {
-                                              setState(() {
-                                                content[index] = data;
-                                              });
-                                            }))).then((value) => {
-                                      if (value == true)
-                                        {
-                                          print("Works"),
-                                          setState(() {
-                                            content.removeAt(index);
-                                          }),
-                                          box.put("notes", content),
-                                          print(box.values)
-                                        }
-                                    });
+                                : null;
                           },
                           child: Container(
                             child: Hero(

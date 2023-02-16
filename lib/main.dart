@@ -5,6 +5,7 @@ import 'package:to_do_app/views/homePage.dart';
 Future<void> main() async {
   await Hive.initFlutter();
   await Hive.openBox("notes");
+  await Hive.openBox("deleted_notes");
   runApp(const MyApp());
 }
 
