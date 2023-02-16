@@ -35,7 +35,12 @@ class _HomePageState extends State<HomePage> {
 
   void _getNotes() {
     setState(() {
-      content.addAll(box.get("notes"));
+      for (var note in box.get("notes")) {
+        if (!content.contains(note)) {
+          content.add(note);
+        }
+      }
+      // content.addAll(box.get("notes"));
     });
   }
 
